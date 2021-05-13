@@ -5,26 +5,24 @@ import dds.monedero.exceptions.MaximoExtraccionDiarioException;
 import dds.monedero.exceptions.MontoNegativoException;
 import dds.monedero.exceptions.SaldoMenorException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cuenta {
 
-  private double saldo = 0;
+  private BigDecimal saldo = new BigDecimal(0);  //Code Smell - Type BigDecimal
   private List<Movimiento> movimientos = new ArrayList<>();
 
-  public Cuenta() {
-    saldo = 0;
-  }
+  //public Cuenta() {saldo = 0; } //Code Smell - Esto no hace falta, ya que se setea por default el saldo a 0, ademas que tenemos dos constructores
 
-  public Cuenta(double montoInicial) {
-    saldo = montoInicial;
-  }
-
-  public void setMovimientos(List<Movimiento> movimientos) {
+  public Cuenta(BigDecimal montoInicial, List<Movimiento> movimientos) { //Code Smell - montoInicial type BigDecimal
+    this.saldo = montoInicial;
     this.movimientos = movimientos;
   }
+
+  //public void setMovimientos(List<Movimiento> movimientos) {this.movimientos = movimientos;}
 
   public void poner(double cuanto) {
     if (cuanto <= 0) {
