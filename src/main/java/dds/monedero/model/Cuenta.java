@@ -24,8 +24,8 @@ public class Cuenta {
 
   //public void setMovimientos(List<Movimiento> movimientos) {this.movimientos = movimientos;}
 
-  public void poner(double cuanto) {
-    if (cuanto <= 0) {
+  public void poner(BigDecimal cuanto) {
+    if ((cuanto.compareTo(new BigDecimal(0)) <= 0)) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
     }
 
@@ -36,43 +36,45 @@ public class Cuenta {
     new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
   }
 
-  public void sacar(double cuanto) {
-    if (cuanto <= 0) {
+  public void sacar(BigDecimal cuanto) {
+    if (cuanto.compareTo(new BigDecimal(0)) <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
     }
-    if (getSaldo() - cuanto < 0) {
+    if ((getSaldo().subtract(cuanto)).compareTo(new BigDecimal(0)) < 0) {
       throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
     }
-    double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
-    double limite = 1000 - montoExtraidoHoy;
-    if (cuanto > limite) {
+    BigDecimal montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
+    BigDecimal limite = (new BigDecimal(1000)).subtract(montoExtraidoHoy);
+    if (cuanto.compareTo(limite) > 0) {
       throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
-          + " diarios, límite: " + limite);
+              + " diarios, límite: " + limite);
     }
     new Movimiento(LocalDate.now(), cuanto, false).agregateA(this);
   }
 
-  public void agregarMovimiento(LocalDate fecha, double cuanto, boolean esDeposito) {
+  public void agregarMovimiento(LocalDate fecha, BigDecimal cuanto, boolean esDeposito) {
     Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
     movimientos.add(movimiento);
   }
 
-  public double getMontoExtraidoA(LocalDate fecha) {
+  public BigDecimal getMontoExtraidoA(LocalDate fecha) {
+    //BigDecimal sum = BigDecimal.ZERO;
     return getMovimientos().stream()
-        .filter(movimiento -> !movimiento.isDeposito() && movimiento.getFecha().equals(fecha))
-        .mapToDouble(Movimiento::getMonto)
-        .sum();
+            .filter(movimiento -> !movimiento.isDeposito() && movimiento.getFecha().equals(fecha))
+            .map(movimiento -> movimiento.getMonto()) //flatmap anteriormente
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    //.sum();
   }
 
   public List<Movimiento> getMovimientos() {
     return movimientos;
   }
 
-  public double getSaldo() {
+  public BigDecimal getSaldo() {
     return saldo;
   }
 
-  public void setSaldo(double saldo) {
+  public void setSaldo(BigDecimal saldo) {
     this.saldo = saldo;
   }
 

@@ -1,21 +1,22 @@
 package dds.monedero.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Movimiento {
   private LocalDate fecha;
   //En ningún lenguaje de programación usen jamás doubles para modelar dinero en el mundo real
   //siempre usen numeros de precision arbitraria, como BigDecimal en Java y similares
-  private double monto;
+  private BigDecimal monto; //Code Smell - el tipo debe ser BigDecimal, jamás Double
   private boolean esDeposito;
 
-  public Movimiento(LocalDate fecha, double monto, boolean esDeposito) {
+  public Movimiento(LocalDate fecha, BigDecimal monto, boolean esDeposito) {
     this.fecha = fecha;
     this.monto = monto;
     this.esDeposito = esDeposito;
   }
 
-  public double getMonto() {
+  public BigDecimal getMonto() {
     return monto;
   }
 
@@ -25,11 +26,11 @@ public class Movimiento {
 
   public boolean fueDepositado(LocalDate fecha) {
     return isDeposito() && esDeLaFecha(fecha);
-  }
+  } //Code Smell - no hace falta usar isDeposito() en la clase ya que tengo acceso a el atributo this.esDeposito
 
   public boolean fueExtraido(LocalDate fecha) {
     return isExtraccion() && esDeLaFecha(fecha);
-  }
+  } //Code Smell - No hace falta utilizar el isExtraccion() tranquilamente podriamos ponerle !this.esDeposito
 
   public boolean esDeLaFecha(LocalDate fecha) {
     return this.fecha.equals(fecha);
@@ -48,11 +49,11 @@ public class Movimiento {
     cuenta.agregarMovimiento(fecha, monto, esDeposito);
   }
 
-  public double calcularValor(Cuenta cuenta) {
+  public BigDecimal calcularValor(Cuenta cuenta) { //Code Smell - Devuelve un BigDecimal con el cambio que hicimos arriba
     if (esDeposito) {
-      return cuenta.getSaldo() + getMonto();
+      return (cuenta.getSaldo()).add(getMonto());
     } else {
-      return cuenta.getSaldo() - getMonto();
+      return (cuenta.getSaldo()).subtract(getMonto());
     }
   }
 }
