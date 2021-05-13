@@ -11,8 +11,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MonederoTest {
   private Cuenta cuenta;
@@ -37,9 +38,11 @@ public class MonederoTest {
 
   @Test
   void TresDepositos() {
+    assertThrows(MaximaCantidadDepositosException.class, () -> {
     cuenta.poner(new BigDecimal(1500));
     cuenta.poner(new BigDecimal(456));
     cuenta.poner(new BigDecimal(1900));
+  });
   }
 
   @Test
@@ -73,4 +76,27 @@ public class MonederoTest {
     assertThrows(MontoNegativoException.class, () -> cuenta.sacar(new BigDecimal(-500)));
   }
 
+  @Test
+  public void GetSaldo() {
+    assertEquals(new BigDecimal(1800.50), cuenta.getSaldo());
+  }
+
+  @Test
+  public void SetSaldo() {
+    cuenta.setSaldo(new BigDecimal(200));
+    assertEquals(new BigDecimal(200), cuenta.getSaldo());
+  }
+
+  @Test
+  public void getMontoExtraidoA() {
+    cuenta.agregarMovimiento(LocalDate.parse("2021-01-01"), new BigDecimal(250), false);
+    assertEquals(cuenta.getMontoExtraidoA(LocalDate.parse("2021-01-01")), new BigDecimal(250));
+    assertEquals(cuenta.getMontoExtraidoA(LocalDate.parse("2020-10-30")), new BigDecimal(1550));
+  }
+
+  @Test
+  public void fueExtraido() {
+    Movimiento extraccion = new Movimiento( LocalDate.parse("2020-10-30"), new BigDecimal(1550),false);
+    assertTrue(extraccion.fueExtraido(LocalDate.parse("2020-10-30")));
+  }
 }
