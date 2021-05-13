@@ -25,11 +25,11 @@ public class Movimiento {
   }
 
   public boolean fueDepositado(LocalDate fecha) {
-    return isDeposito() && esDeLaFecha(fecha);
+    return esDeposito && esDeLaFecha(fecha);
   } //Code Smell - no hace falta usar isDeposito() en la clase ya que tengo acceso a el atributo this.esDeposito
 
   public boolean fueExtraido(LocalDate fecha) {
-    return isExtraccion() && esDeLaFecha(fecha);
+    return !esDeposito && esDeLaFecha(fecha);
   } //Code Smell - No hace falta utilizar el isExtraccion() tranquilamente podriamos ponerle !this.esDeposito
 
   public boolean esDeLaFecha(LocalDate fecha) {
@@ -40,9 +40,7 @@ public class Movimiento {
     return esDeposito;
   }
 
-  public boolean isExtraccion() {
-    return !esDeposito;
-  }
+  //public boolean isExtraccion() { return !esDeposito; } // No se utiliza en ningun metodo fuera de la clase, podemos comentarlo
 
   public void agregateA(Cuenta cuenta) {
     cuenta.setSaldo(calcularValor(cuenta));
