@@ -1,5 +1,4 @@
 package dds.monedero.model;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
